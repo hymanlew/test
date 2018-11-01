@@ -68,7 +68,7 @@ public class FileUpload {
                 }    
             }
         }
-        
+
         if(!StringUtils.isEmpty(imgPath)){
         	resultMap.put("result", "success");
         	resultMap.put("image",imgPath);
