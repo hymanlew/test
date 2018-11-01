@@ -1,2 +1,2 @@
 # test
-the first one
+the first one and merge remote file
