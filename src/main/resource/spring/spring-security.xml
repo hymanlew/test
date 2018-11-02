@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Spring Security命名空间（namespace，即xmlns）的引入可以简化我们的开发，它涵盖了大部分 Spring Security常用的功能。它的设计是基于
+    框架内大范围的依赖的，可以被划分为以下几块：
+
+    Web/Http 安全：		    通过建立 filter和相关的 service bean来实现框架的认证机制。当访问受保护的 URL 时会将用户引入登录界面或者是错误提示界面。
+    业务对象或者方法的安全：	控制方法访问权限的。
+    AuthenticationManager：	处理来自于框架其他部分的认证请求（认证管理）。
+
+    AccessDecisionManager：	为 Web 或方法的安全提供访问决策。会注册一个默认的，但是我们也可以通过普通 bean 注册的方式使用自定义的 AccessDecisionManager（访问验证决策管理，授权管理）。
+
+    AuthenticationProvider：	AuthenticationManager 是通过它来认证用户的（认证供给，即验证的具体实现）。
+
+    UserDetailsService：	    跟 AuthenticationProvider 关系密切，用来获取用户信息的。
+
+-->
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security-4.2.xsd">
+
+    <!--security 只是我们使用命名空间的一个前缀。http 元素是用于定义 Web 相关权限控制的。设置 auto-config="true"，可以自动生成一个自动登陆页面，但不会这样使用。-->
+    <http auto-config="true">
+        <!--
+         intercept-url 定义了一个权限控制的规则。
+         pattern 属性表示我们将对哪些 url 进行权限控制，其也可以是一个正则表达式，以下的写法表示我们将对所有的 URL 进行权限控制；
+         access 属性表示在请求对应的 URL 时需要什么权限，默认配置时它应该是一个以逗号分隔的角色列表，请求的用户只需拥有其中的一个角色就能成功访问对应的 URL。
+         这里的 “ROLE_USER” 表示请求的用户应当具有 ROLEUSER 角色。“ROLE” 前缀是一个提示 Spring 使用基于角色的检查的标记。
+        -->
+        <intercept-url pattern="/**" access="hasRole('USER')"/>
+    </http>
+
+    <!--
+        authentication: 证明；鉴定
+        provider:       供应商
+
+    -->
+    <authentication-manager>
+        <authentication-provider>
+            <!-- 获取用户信息,这里我们只是简单的使用 user 元素来定义用户，而实际应用中这些信息通常都是需要从数据库等地方获取的 -->
+            <!--<security:user-service>-->
+                <!--<security:user name="user" password="user" authorities="ROLE_USER" />-->
+                <!--<security:user name="admin" password="admin" authorities="ROLE_USER,ROLE_ADMIN" />-->
+            <!--</security:user-service>-->
+
+            <!-- 或者使用对应的 property 文件来指定用户信息,如果是 WEB-INF下的文件则可以直接写入路径,不需要加 classpath -->
+            <user-service properties="classpath:config/users.properties" />
+        </authentication-provider>
+    </authentication-manager>
+</beans:beans>

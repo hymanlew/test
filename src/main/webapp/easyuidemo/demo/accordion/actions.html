@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Accordion Actions - jQuery EasyUI Demo</title>
+	<link rel="stylesheet" type="text/css" href="../../themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../../themes/icon.css">
+	<link rel="stylesheet" type="text/css" href="../demo.css">
+	<script type="text/javascript" src="../../jquery.min.js"></script>
+	<script type="text/javascript" src="../../jquery.easyui.min.js"></script>
+</head>
+<body>
+	<h2>Accordion Actions</h2>
+	<div style="margin:20px 0 10px 0;">
+		<a href="javascript:void(0)" class="easyui-linkbutton" onclick="selectPanel()">Select</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" onclick="addPanel()">Add</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" onclick="removePanel()">Remove</a>
+	</div>
+	<div id="aa" class="easyui-accordion" style="width:500px;height:300px;">
+		<div title="About" data-options="iconCls:'icon-ok'" style="overflow:auto;padding:10px;">
+			<h3 style="color:#0099FF;">Accordion for jQuery</h3>
+			<p>Accordion is a part of easyui framework for jQuery. It lets you define your accordion component on web page more easily.</p>
+		</div>
+	</div>
+	<script type="text/javascript">
+		function selectPanel(){
+			$.messager.prompt('Prompt','Please enter the panel title:',function(s){
+				if (s){
+					$('#aa').accordion('select',s);
+				}
+			});
+		}
+		var idx = 1;
+		function addPanel(){
+			$('#aa').accordion('add',{
+				title:'Title'+idx,
+				content:'<div style="padding:10px">Content'+idx+'</div>'
+			});
+			idx++;
+		}
+		function removePanel(){
+			var pp = $('#aa').accordion('getSelected');
+			if (pp){
+				var index = $('#aa').accordion('getPanelIndex',pp);
+				$('#aa').accordion('remove',index);
+			}
+		}
+	</script>
+
+	<h2>Loading Accordion Content with AJAX</h2>
+	<div style="margin:20px 0 10px 0;"></div>
+	<div class="easyui-accordion" style="width:500px;height:450px;">
+		<div title="Top Panel" data-options="iconCls:'icon-search',collapsed:false,collapsible:false" style="padding:10px;">
+			<input class="easyui-searchbox" prompt="Enter something here" style="width:300px;">
+		</div>
+		<div title="About" data-options="iconCls:'icon-ok'" style="overflow:auto;padding:10px;">
+			<h3 style="color:#0099FF;">Accordion for jQuery</h3>
+			<p>Accordion is a part of easyui framework for jQuery.</p>
+		</div>
+		<div title="Help" data-options="iconCls:'icon-help'" style="padding:10px;">
+			<p>The accordion allows you to provide multiple panels and display one or more at a time.</p>
+		</div>
+		<div title="Ajax" data-options="href:'content.html'" style="padding:10px">
+		</div>
+		<div title="TreeMenu" data-options="iconCls:'icon-search'" style="padding:10px 0;">
+			<ul class="easyui-tree">
+				<li>
+					<span>Foods</span>
+					<ul>
+						<li>
+							<span>Fruits</span>
+							<ul>
+								<li>apple</li>
+							</ul>
+						</li>
+						<li>
+							<span>Vegetables</span>
+							<ul>
+								<li>tomato</li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<div title="DataGrid" style="padding:10px" data-options="
+				selected:true,
+				tools:[{
+					iconCls:'icon-reload',
+					handler:function(){
+						$('#dg').datagrid('reload');
+					}
+				}]">
+			<table id="dg" class="easyui-datagrid"
+				   data-options="url:'datagrid_data1.json',method:'get',fit:true,fitColumns:true,singleSelect:true">
+				<thead>
+				<tr>
+					<th data-options="field:'itemid',width:80">Item ID</th>
+					<th data-options="field:'productid',width:100">Product ID</th>
+					<th data-options="field:'listprice',width:80,align:'right'">List Price</th>
+					<th data-options="field:'unitcost',width:80,align:'right'">Unit Cost</th>
+					<th data-options="field:'attr1',width:150">Attribute</th>
+					<th data-options="field:'status',width:50,align:'center'">Status</th>
+				</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+
+	<h2>Horizontal Accordion</h2>
+	<div style="margin:20px 0 10px 0;"></div>
+	<div class="easyui-accordion" halign="left" style="width:700px;height:300px;">
+		<div title="About" titleDirection="up" style="overflow:auto;padding:10px;">
+			<h3 style="color:#0099FF;">Accordion for jQuery</h3>
+			<p>Accordion is a part of easyui framework for jQuery.</p>
+		</div>
+		<div title="Help" titleDirection="up" style="padding:10px;">
+			<p>The accordion allows you to provide multiple panels and display one or more at a time.</p>
+		</div>
+		<div title="TreeMenu" titleDirection="up" style="padding:10px;">
+			<ul class="easyui-tree">
+				<li>
+					<span>Foods</span>
+					<ul>
+						<li>
+							<span>Fruits</span>
+							<ul>
+								<li>apple</li>
+							</ul>
+						</li>
+						<li>
+							<span>Vegetables</span>
+							<ul>
+								<li>tomato</li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<h2>Multiple Accordion Panels</h2>
+	<div style="margin:20px 0 10px 0;"></div>
+	<div class="easyui-accordion" data-options="multiple:true" style="width:500px;">
+		<div title="Language" data-options="iconCls:'icon-ok'" style="overflow:auto;padding:10px;">
+			<p>A programming language is a formal language designed to communicate instructions to a machine.</p>
+		</div>
+		<div title="Java" style="padding:10px;">
+			<p>Java (Indonesian: Jawa) is an island of Indonesia.</p>
+		</div>
+		<div title="C#" style="padding:10px;">
+			<p>C# is a multi-paradigm programming language encompassing strong typing</p>
+		</div>
+	</div>
+</body>
+</html>

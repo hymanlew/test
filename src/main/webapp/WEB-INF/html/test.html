@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+<script>
+
+    function getStreetNames() {
+        var parent = 1851;
+        $.ajax({
+            type:"post",
+            async:false,
+            url:"area/findAreaByParent",
+            data:{
+                "parent":parent
+            },
+            dataType:"json",
+            error:function (jqXHR, textStatus, errorThrow) {
+                console.log(textStatus);
+                console.log(errorThrow);
+            },
+            success:function (data) {
+                console.log(data);
+                var code = "<option value=''>请选择（乡/镇/街道）</option>";
+                for(var i=0;i<data.length;i++){
+                    code += "<option value='"+data[i].id+"'>"+data[i].district+"</option>";
+                }
+                $("#streetName").html(code);
+            }
+        });
+    }
+
+</script>
+</html>
