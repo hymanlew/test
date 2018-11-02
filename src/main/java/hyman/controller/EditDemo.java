@@ -67,27 +67,18 @@ public class EditDemo {
     }
 
     @RequestMapping("layui")
-<<<<<<< HEAD
-    public String layui(){
-=======
     public String layui(String data, HttpServletRequest request){
->>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
         return "layuido";
     }
 
     @RequestMapping("layuijs")
-<<<<<<< HEAD
-    public String layuijs(){
-=======
     public String layuijs(String data, HttpServletRequest request){
         request.getSession().setAttribute("test","测试中文乱码！");
->>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
         return "layuijs";
     }
 
     @RequestMapping("layuiframe")
-<<<<<<< HEAD
-    public String layuiframe(){
+    public String layuiframe(String data, HttpServletRequest request){
         return "iframe";
     }
 
@@ -100,10 +91,4 @@ public class EditDemo {
     public String bootstrap1(){
         return "bootstrapdo1";
     }
-
-=======
-    public String layuiframe(String data, HttpServletRequest request){
-        return "iframe";
-    }
->>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
 }
