@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bean>
+
+
+    <!--IDEA中MAVEN项目打JAR包的简单方法：-->
+
+    <!--1，首先是在 maven 项目的 pom.xml 中添加打包的插件，使用 maven-compiler-plugin、maven-jar-plugin 插件，-->
+
+<build>
+    <finalName>test</finalName>
+
+    <resources>
+        <!-- 把 src/main/resources 下的包括 xml 和 properties 的文件复制到target/classes下 -->
+        <resource>
+            <targetPath>${project.build.directory}/classes</targetPath>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+            <includes>
+                <include>**/*.xml</include>
+                <include>**/*.properties</include>
+            </includes>
+        </resource>
+
+
+        <!-- 把 src/main/resources/spring 下的 spring-context.xml 文件复制到 target/classes/META-INF/spring 下 -->
+        <resource>
+            <targetPath>${project.build.directory}/classes/META-INF/spring</targetPath>
+            <directory>src/main/resources/spring</directory>
+            <filtering>true</filtering>
+            <includes>
+                <include>spring-context.xml</include>
+            </includes>
+        </resource>
+
+
+        <!--
+            maven-resources-plugins插件，是用于打包我们用到的资源文件（各种xml，properties，jsp文件等等）。
+            resources:描述工程中资源的位置，
+
+            targetPath:指定build资源到哪个目录，默认是base directory
+
+            filtering:指定是否将filter文件(即build下的filters里定义的*.property文件)的变量值在这个resource文件有效,例如上面就指定那些变量值在configuration文件无效。
+
+            directory:指定属性文件的目录，build的过程需要找到它，并且将其放到targetPath下，默认的directory是${basedir}/src/main/resources
+
+            includes:指定包含文件的patterns,符合样式并且在directory目录下的文件将会包含进project的资源文件。
+
+            excludes:指定不包含在内的patterns,如果inclues与excludes有冲突，那么excludes胜利，那些符合冲突的样式的文件是不会包含进来的。
+
+            testResources:这个模块包含测试资源元素，其内容定义与resources类似，不同的一点是默认的测试资源路径是${basedir}/src/test/resources,测试资源是不部署的。
+
+            默认情况下，如果没有指定resources，目前认为自动会将classpath下的src/main/java下的.class文件和src/main/resources下的.xml文件放到target里头的 classes
+            文件夹下的package下的文件夹里。如果设定了resources，那么默认的就会失效，就会以指定的includes和excludes为准。例如，为了使打包的jar包里头包含.java源文件。
+        -->
+        <resource>
+            <targetPath>META-INF/plexus</targetPath>
+            <filtering>false</filtering>
+            <directory>basedir}/src/main/plexus</directory>
+            <includes>
+                <include>configuration.xml</include>
+            </includes>
+            <excludes>
+                <exclude>**/*.properties</exclude>
+            </excludes>
+        </resource>
+    </resources>
+
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+            </configuration>
+        </plugin>
+
+        <!-- 打jar包，项目本身的依赖包放在lib文件夹下，(lib与生成的jar在同一目录)  -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>copy-dependencies</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>copy-dependencies</goal>
+                    </goals>
+                    <configuration>
+                        <type>jar</type>
+                        <includeTypes>jar</includeTypes>
+                        <useUninqeVersions>false</useUninqeVersions>
+                        <outputDirectory>
+                            ${project.build.directory}/lib
+                        </outputDirectory>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+
+        <!--打jar包范围是rarget/classes  启动类是 hyman.controller.EditDemo 下的 main 方法，且只会执行 main 方法 -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+                <classesDirectory>target/classes</classesDirectory>
+                <archive>
+                    <!--
+                        jar 插件配置 mainfest，是因为如果不配置并指定到程序进入接口，则程序就不能运行，就报错没有主清单属性。Maven 项目打成
+                        jar 包也不能运行 web 功能。
+                    -->
+                    <manifest>
+                        <addClasspath>true</addClasspath>
+                        <!-- 不记录版本号 -->
+                        <useUniqueVersions>false</useUniqueVersions>
+                        <classpathPrefix>lib/</classpathPrefix>
+                        <mainClass>hyman.controller.EditDemo</mainClass>
+                    </manifest>
+                </archive>
+            </configuration>
+        </plugin>
+
+        <!-- 此插件打包也不能运行 web 应用项目 -->
+        <!--<plugin>-->
+            <!--<groupId>org.apache.tomcat.maven</groupId>-->
+            <!--<artifactId>tomcat7-maven-plugin</artifactId>-->
+            <!--<version>2.2</version>-->
+            <!--<configuration>-->
+                <!--&lt;!&ndash; path 是访问应用的路径，例如写的是/SSM，则访问路径是 http://localhost/SSM &ndash;&gt;-->
+                <!--<port>80</port>-->
+                <!--<path></path>-->
+                <!--<uriEncoding>UTF-8</uriEncoding>-->
+                <!--<server>tomcat7</server>-->
+            <!--</configuration>-->
+        <!--</plugin>-->
+    </plugins>
+    <!--
+        如果这个项目本身还依赖另一个项目A，那么我们就得先把项目A打成jar包使用上面的pom，然后在myeclipse中右键，run as maven install
+        最后结果是 lib 下存放着 edu-service-user 运行所需要的jar。另外在命令行下,使用java -jar edu-service-user.jar 即可调用
+        com.alibaba.dubbo.container.Main这个类。
+    -->
+
+    <!--
+        另一种打 jar 包方式，运行mvn install 后会在 target下生成两个jar包：
+        1，original-xxx-0.0.1-snapshot.jar ，这里面只有我们自己写的java代码的class文件，
+        2，xxx-0.0.1-snapshot.jar ，这里面我们依赖的jar包(会抽出里面的class文件)会和我们的代码放在一块
+    -->
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+            <execution>
+                <phase>package</phase>
+                <goals>
+                    <goal>shade</goal>
+                </goals>
+                <configuration>
+                    <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>hyman.controller.EditDemo</mainClass>
+                        </transformer>
+                    </transformers>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
+
+
+    <!-- 第三种打包方式，然后在pom文件上右键 run as->maven assembly:assembly（装配），之后在pom的同级目录里会生成你所需要的jar -->
+    <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+            <appendAssemblyId>false</appendAssemblyId>
+            <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+            </descriptorRefs>
+            <archive>
+                <manifest>
+                    <mainClass>hyman.controller.EditDemo</mainClass>
+                </manifest>
+            </archive>
+        </configuration>
+        <executions>
+            <execution>
+                <id>make-assembly</id>
+                <phase>package</phase>
+                <goals>
+                    <goal>assembly</goal>
+                </goals>
+            </execution>
+        </executions>
+    </plugin>
+</build>
+
+
+    <!--
+        需要说明的是，如果一个maven项目中有多个子目录，每一个子目录中的pom.xml对应一个项目，它的作用范围只有这一个子目录下的。
+        比如扫描配置文件，如果要让一个子目录下的 pom.xml 扫描另一个子目录下的配置文件，那是做不到的。在打jar包的时候，只运行
+        当前的 pom.xml 文件。
+        当然也有其他的打包方法，比如使用spring-boot-maven-plugin插件在打Jar包时，会引入依赖包。
+    -->
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+            </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+                <archive>
+                    <manifest>
+                        <addClasspath>true</addClasspath>
+                        <useUniqueVersions>false</useUniqueVersions>
+                        <classpathPrefix>lib/</classpathPrefix>
+                        <mainClass>hyman.controller.EditDemo</mainClass>
+                    </manifest>
+                    <manifestEntries>
+                        <version>${project.version}</version>
+                    </manifestEntries>
+                </archive>
+            </configuration>
+        </plugin>
+    </plugins>
+
+    <!--
+        如何构建多个子目录，参考：http://www.cnblogs.com/acm-bingzi/p/6625202.html
+        如果打成Jar包后报Unable to locate Spring NamespaceHandler for XML schema namespace错，参考：http://www.cnblogs.com/acm-bingzi/p/6625123.html
+        spring-boot-maven-plugin插件的作用，参考：http://www.cnblogs.com/acm-bingzi/p/mavenSpringBootPlugin.html
+    -->
+    <!--
+        maven-shade-plugin，maven-assembly-plugin，与maven默认的 maven-jar-plugin都是打包插件，简单的区别如下：
+
+        1，maven-jar-plugin，是 maven 默认打包插件，用来创建 project jar。
+        2，maven-shade-plugin，用来打可执行包，包含依赖，以及对依赖进行取舍过滤。当你只想将项目打成一个可执行包时，maven-shade-plugin非常适合。
+        3，maven-assembly-plugin，支持定制化打包方式，更多是对项目目录的重新组装。
+    -->
+
+
+<build>
+    <!--
+        如果想只包含部分依赖jar包，比如做一个工具jar包，依赖公共jar和自己本地jar包，本地jar包需要解压成class打到jar包内，而依赖的公共jar包则不需要。
+        剔除公共jar包 可以用<scope>，<scope>的值的含义：
+
+            compile，缺省值，适用于所有阶段，会随着项目一起发布。
+            provided，类似compile，期望JDK、容器或使用者会提供这个依赖。如servlet.jar。
+            runtime，只在运行时使用，如JDBC驱动，适用运行和测试阶段。
+            test，只在测试时使用，用于编译和运行测试代码。不会随项目发布。
+            system，类似provided，需要显式提供包含依赖的jar，Maven不会在Repository中查找它。
+
+编译的时候采用 compile
+    -->
+    <plugins>
+        <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+                <descriptorRefs>
+                    <descriptorRef>jar-with-dependencies</descriptorRef>
+                </descriptorRefs>
+                <archive>
+                    <manifest>
+                        <!-- mainClass为空因为不是可执行jar -->
+                        <mainClass></mainClass>
+                    </manifest>
+                </archive>
+            </configuration>
+            <executions>
+                <execution>
+                    <id>make-assembly</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>single</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+
+
+
+<build>
+    <dependencies>
+        <!-- dubbo 需要的jar start -->
+        <dependency>
+            <groupId>org.jboss.netty</groupId>
+            <artifactId>netty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+</build>
+
+
+
+
+
+
+
+</bean>

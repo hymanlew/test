@@ -1,8 +1,11 @@
 package hyman.demo;
 
+<<<<<<< HEAD
 import hyman.entity.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
+=======
+>>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
 import org.springframework.scheduling.annotation.Scheduled;
 import redis.clients.jedis.Jedis;
 
@@ -28,6 +31,7 @@ public class demo {
         }
     }
 
+<<<<<<< HEAD
     public static void test1(String json){
         try {
             JSONObject jsonObject = new JSONObject(json);
@@ -56,6 +60,13 @@ public class demo {
         //System.out.println("helloword".equals("hello"));
         //System.out.println("helloword".indexOf("hello"));
         test1("{id:'hello'}");
+=======
+
+
+    public static void main(String[] args) {
+        //test();
+
+>>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
     }
 
 

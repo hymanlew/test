@@ -15,7 +15,45 @@
     </div>
   </div>
 </div>
+<<<<<<< HEAD
 <script>
+=======
+<div class="layui-fluid">
+  <div class="layui-row">
+
+  <svg class="icon addImg" aria-hidden="false" style="float: left;">
+    <use></use>
+  </svg>
+
+  <svg width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <!--
+    line ： 直线
+    x1 属性在 x 轴定义线条的开始
+    y1 属性在 y 轴定义线条的开始
+    x2 属性在 x 轴定义线条的结束
+    y2 属性在 y 轴定义线条的结束
+    -->
+    <line x1="0" y1="0" x2="300" y2="300" style="stroke:rgb(99,99,99);stroke-width:2"/>
+  </svg>
+  </div>
+</div>
+<script>
+    $(function () {
+        // test();
+    });
+
+    function test() {
+        console.log("== 1 ==");
+        layer.load(2, {content:'你好，自定义加载动画，也可以去掉本内容！',time: 10*1000,success: function(layero){
+                layero.find('.layui-layer-content').css('padding-top', '40px');
+                console.log("可以自定义输出参数！")
+            }});
+
+        // 手动关闭动画
+        // var index = layer.load(2);
+        // layer.close(index);
+    }
+>>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
 </script>
 <style scoped>
 

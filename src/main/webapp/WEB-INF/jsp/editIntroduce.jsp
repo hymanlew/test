@@ -1,5 +1,9 @@
 
+<<<<<<< HEAD
 <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
+=======
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+>>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <c:set var="base" scope="request" value="${pageContext.request.contextPath}/"></c:set>

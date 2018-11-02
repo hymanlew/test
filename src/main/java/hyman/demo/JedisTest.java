@@ -1,5 +1,6 @@
 package hyman.demo;
 
+<<<<<<< HEAD
 import com.alibaba.druid.sql.dialect.sqlserver.ast.SQLServerOutput;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -8,6 +9,14 @@ import redis.clients.jedis.Transaction;
 
 import java.time.chrono.JapaneseDate;
 import java.util.*;
+=======
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Pipeline;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+>>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
 
 public class JedisTest {
 
@@ -16,6 +25,7 @@ public class JedisTest {
         // 连接本地的 Redis 服务
         Jedis jedis = new Jedis("localhost",6379);
         jedis.auth("123456");
+<<<<<<< HEAD
         System.out.println(jedis.ping());
         System.out.println("连接成功！");
 
@@ -28,36 +38,53 @@ public class JedisTest {
         }
 
         // string
+=======
+        System.out.println("连接成功！");
+
+>>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
         // 设置 redis 字符串数据
         jedis.set("hyman","testJava");
         System.out.println("hyman :"+jedis.get("hyman"));
 
+<<<<<<< HEAD
         // 查看指定的 key 是否存在。以及剩余的生存时间，-1 表示永不过期，-2 表示已过期。
         System.out.println("hyman exists"+jedis.exists("hyman"));
         System.out.println(jedis.ttl("hyman"));
 
+=======
+>>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
         // 删除一个 key数据
         jedis.del("hyman");
         System.out.println("hyman :"+jedis.get("hyman"));
 
+<<<<<<< HEAD
         // mset，mget
         jedis.mset("s1","v1","s2","v2");
         System.out.println(jedis.mget("s1","s2","s3"));
 
 
         // list
+=======
+        // 获取使用命令存储的数据并输出
+        System.out.println("set :"+jedis.smembers("set"));
+
+>>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
         // 存储数据到列表中
         jedis.lpush("rlist","r1");
         jedis.lpush("rlist","r2");
         jedis.rpush("rlist","r3","r4");
 
+<<<<<<< HEAD
         // 获取 list 中所有的数据
+=======
+>>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
         List<String> list = jedis.lrange("rlist",0,-1);
         for(String s:list){
             System.out.println(s);
         }
         System.out.println("========================");
 
+<<<<<<< HEAD
 
         // set
         jedis.sadd("order","001");
@@ -165,6 +192,20 @@ public class JedisTest {
     }
 
     /**
+=======
+        // 获取所有的 key数据并输出
+        Set<String> keys = jedis.keys("*");
+        Iterator<String> iterator = keys.iterator();
+        while (iterator.hasNext()){
+            System.out.println(iterator.next());
+        }
+    }
+
+
+    /**
+     * 其他 jedis 的 demo，在另一个 demo 类中。
+     *
+>>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
      * Redis 的管道（Pipeline）可以在大量数据需要一次性操作完成的时候,使用Pipeline进行批处理,将一大队的操作合并成一次操作,可以减少链路层
      * 的时间消耗,毕竟频繁操作是不好的嘛.
      */
@@ -202,6 +243,7 @@ public class JedisTest {
         System.out.println("10W 数据使用通道操作的耗时："+(end-start)+" 毫秒！");
     }
 
+<<<<<<< HEAD
     public static void masterSlave(){
         Jedis master = new Jedis("127.0.0.1",6379);
         Jedis slave = new Jedis("127.0.0.1",6380);
@@ -243,6 +285,8 @@ public class JedisTest {
         }
     }
 
+=======
+>>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
     public static void main(String[] args) {
 
         //redisTest();
@@ -251,7 +295,11 @@ public class JedisTest {
         //noChannel();
 
         // 10W 数据使用通道操作的耗时：1663 毫秒！
+<<<<<<< HEAD
         //plusChanel();
+=======
+        plusChanel();
+>>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
 
         /**
          * 在本地运行的情况下性能差距就已经如此明显,更何况是在互联网项目当中,如果是频繁的操作Redis,使用管道技术去进行操作
@@ -260,6 +308,7 @@ public class JedisTest {
          *
          * PipeLine的强大已经是非常直观的了。
          */
+<<<<<<< HEAD
 
         //JedisTest test = new JedisTest();
         //boolean check = test.transWatch();
@@ -267,5 +316,7 @@ public class JedisTest {
         //if(!check){
         //    test.transWatch();
         //}
+=======
+>>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
     }
 }
