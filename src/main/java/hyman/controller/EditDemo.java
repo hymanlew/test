@@ -81,4 +81,14 @@ public class EditDemo {
     public String layuiframe(String data, HttpServletRequest request){
         return "iframe";
     }
+
+    @RequestMapping("bootstrap")
+    public String bootstrap(){
+        return "bootstrapdo";
+    }
+
+    @RequestMapping("bootstrap1")
+    public String bootstrap1(){
+        return "bootstrapdo1";
+    }
 }
