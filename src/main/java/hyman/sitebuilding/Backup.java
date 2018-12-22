@@ -13,7 +13,7 @@ public class Backup {
      http://localhost:8080/attendance/test
 
      @Resource
-     private UserService userService;
+     private UserDao userService;
 
     @RequestMapping("test")
     public void test(){

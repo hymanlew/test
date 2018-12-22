@@ -1,11 +1,13 @@
 package hyman.controller;
 
 import hyman.entity.LayuiUser;
+import hyman.service.UserService;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +16,9 @@ import java.util.Map;
 @Controller
 @RequestMapping("layui")
 public class LayuiController {
+
+    @Resource(name = "userService")
+    private UserService userService;
 
     /**
      * layui table 接收的必须是 json 数据，或是 String 类型的 json 格式数据。
@@ -41,7 +46,6 @@ public class LayuiController {
         object.put("msg","table 成功！");
         object.put("count",users.size());
         object.put("data",users);
-
         return object.toString();
     }
 
@@ -116,5 +120,35 @@ public class LayuiController {
         object.put("count",users.size());
         object.put("data",users);
         return object.toString();
+    }
+
+    @RequestMapping("table5")
+    @ResponseBody
+    public String getUser5(String name){
+
+        System.out.println("====================="+name);
+        Map<String,Object> map = new HashMap<>();
+        map.put("start",0);
+        map.put("end",1);
+
+        // 当使用 mybatis 的多 sql 查询（集合的多结果集）时，如果结果集是不同的类型，则必须以 object 类型接收，否则拿数据时报错。
+        List<List<Object>> datas = userService.usersCount(map);
+        return laypageData(datas).toString();
+    }
+
+    public JSONObject laypageData(List<List<Object>> datas){
+        List<Object> users = datas.get(0);
+        Integer count = Integer.parseInt(datas.get(1).get(0).toString());
+        return tojson(users,count);
+    }
+
+    public JSONObject tojson(List<Object> datas,Integer count){
+        Map<String,Object> map = new HashMap<>();
+        map.put("code",0);
+        map.put("msg","");
+        map.put("count",count);
+        map.put("data",datas);
+        JSONObject jsonObject = new JSONObject(map);
+        return jsonObject;
     }
 }

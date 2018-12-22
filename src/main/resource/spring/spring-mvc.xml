@@ -15,14 +15,11 @@
         http://www.springframework.org/schema/task
         http://www.springframework.org/schema/task/spring-task-4.2.xsd">
 
-<<<<<<< HEAD
-    <context:component-scan base-package="hyman.controller"/>
-    <context:component-scan base-package="hyman.service"/>
-=======
+    <!--<context:component-scan base-package="hyman.controller"/>-->
+    <!--<context:component-scan base-package="hyman.service"/>-->
     <context:component-scan base-package="hyman.*"/>
->>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
-    <mvc:annotation-driven/>
 
+    <mvc:annotation-driven/>
     <mvc:default-servlet-handler />
     <mvc:resources mapping="/js/**" location="/js/" />
     <mvc:resources mapping="/css/**" location="/css/" />
@@ -48,8 +45,7 @@
         </property>
     </bean>
 
-<<<<<<< HEAD
-=======
+
     <!-- Multipart：多部件的， Resolver：分析器-->
     <!-- 200*1024*1024 即 200M，resolveLazily属性启用是为了推迟文件解析，以便捕获文件大小异常 -->
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
@@ -57,6 +53,4 @@
         <property name="defaultEncoding" value="UTF-8" />
         <property name="resolveLazily" value="true" />
     </bean>
-
->>>>>>> a577d1ec65e51a687a6470d87c9351cccf139485
 </beans>
