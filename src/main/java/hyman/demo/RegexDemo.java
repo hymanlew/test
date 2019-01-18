@@ -1,7 +1,5 @@
 package hyman.demo;
 
-import org.springframework.security.access.method.P;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -193,11 +191,92 @@ public class RegexDemo {
         System.out.println("matches: " + matcher.matches() );
     }
 
+    public static void test5(){
+        /**
+         * 多行匹配模式：
+         * Multiline 修饰的是 ^与$（开始符和结尾符），它会把每一行(以 \n结尾的)的开头和结束来匹配，是与整个字符串分行后的开头
+         * 和结尾匹配;
+         *
+         * 单行模式：
+         * Singleline 匹配的是所有字符（包括\n）。
+         *
+         * 但是如果没有指定特定的模式（例如 Singleline）的时候，匹配的是除 \n 外的所有字符。缺省情况下都是不匹配换行符的。
+         * 因为 “.” 等于是字符集 [^\n\r](Window) 或 [^\n]( Unix) 的简写。
+         *
+         *
+         * JavaScript 中的正则表达式（/xxxx/m）：
+         *
+         * m 修饰符可以执行多行匹配，其作用是修改 ^和$ 在正则表达式中的作用，让它们分别表示行首和行尾。在默认状态下，一个字符
+         * 串无论是否换行只有一个开始^和结尾$，如果采用多行匹配，那么每一个行都有一个^和结尾$。
+         */
+
+        // 以下代码不能够匹配字符串"an"，尽管"an"后面已经换行了，但是并没有采用多行匹配，所以不是字符串行的结尾
+        String str="This is an\n antzone good";
+
+        System.out.println("===========匹配字符串开头(单行模式)===========");
+        Pattern p= Pattern.compile("an$");
+        Matcher matcher = p.matcher(str);
+        System.out.println(matcher.matches());
+
+
+        /**
+         * 以下代码同样也不可以匹配字符串"an"，虽然采用了多行匹配。但是在 JS 中应该也是，这里先不测试了 var reg=/an$/m;
+         *
+         * Unix 系统里，每行结尾只有“<换行>”，即 ”\n”；
+         * Windows 系统里面，每行结尾是“<换行><回车 >”，即 “\n\r”；
+         * Mac系统里，每行结尾是“<回车>”，即”\n”；
+         *
+         * 这也是 Unix/Mac 系统下的文件在 Windows里打开的话，所有文字会变成一行。
+         * 所以在 win 下测试，就会导致上诉原因。当然换句话说，如果在linux下测试，肯定会没有问题的。
+         */
+        System.out.println("===========匹配字符串结尾(多行模式)===========");
+        p= Pattern.compile("an$",Pattern.MULTILINE);
+        matcher = p.matcher(str);
+        System.out.println(matcher.matches());
+
+
+        //注意里面的换行符
+        str="hello world\r\nhello java\r\nhello java";
+
+        System.out.println("===========匹配字符串开头(单行模式)===========");
+        p= Pattern.compile(".");
+        Matcher m=p.matcher(str);
+        while(m.find()){
+            System.out.println(m.group()+"   位置：["+m.start()+","+m.end()+"]");
+        }
+
+        System.out.println("===========匹配字符串结尾(多行模式)===========");
+        p=Pattern.compile("java$",Pattern.MULTILINE);
+        m=p.matcher(str);
+        while(m.find()){
+            System.out.println(m.group()+"   位置：["+m.start()+","+m.end()+"]");
+        }
+
+        /**
+         * 下面补充一下正则的一些基础知识。
+         　\f 匹配换页符
+         　\n 匹配换行符
+         　\r 匹配回车符
+         　\t 匹配制表符
+         　\v 匹配垂直制表符
+
+         模式修正符
+         　i 不区分大小写
+           m 此模式中如果有回车或换行,^和$ 将匹配每行的行首和行尾
+         　s 让 ‘.’ 能匹配\n
+         　x 忽略空白
+         　U 取消贪婪，相当于(.*?)
+         　A 与 ^效果一样
+         　D 结尾处不忽略回车，即在匹配的字符串后面有回车符的时候，依然能够匹配它成功。但是加上D之后，结尾的回车，不再匹配。
+         */
+    }
+
     public static void main(String[] args) {
 
         //test1();
         //test2();
         //test3();
-        test4();
+        //test4();
+        test5();
     }
 }
