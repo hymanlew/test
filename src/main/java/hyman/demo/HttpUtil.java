@@ -1,12 +1,15 @@
-package com.hyman.util;
+package hyman.demo;
 
 import org.apache.commons.codec.EncoderException;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -22,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.*;
+import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
@@ -42,6 +46,7 @@ public class HttpUtil {
 
     //创建http client
     public static CloseableHttpClient createHttpsClient() {
+
         X509TrustManager x509mgr = new X509TrustManager() {
             @Override
             public void checkClientTrusted(X509Certificate[] xcs, String string) {
@@ -54,6 +59,7 @@ public class HttpUtil {
                 return null;
             }
         };
+
         //因为java客户端要进行安全证书的认证，这里我们设置ALLOW_ALL_HOSTNAME_VERIFIER来跳过认证，否则将报错
         SSLConnectionSocketFactory sslsf = null;
         try {
@@ -70,20 +76,6 @@ public class HttpUtil {
         cookieStore.addCookie(cookie);
         return HttpClients.custom().setDefaultCookieStore(cookieStore).build();
     }
-
-    private static String json="{\"corporation\":{" +
-            "\"companyName\":\"测试企业\"," +
-            "\"companyCode\":\"123\"," +
-            "\"registerNo\":\"123\"," +
-            "\"socialId\":\"123\"," +
-            "\"companyType\":\"总包\"," +
-            "\"companyAddress\":\"星湖街\"," +
-            "\"userName\":\"曹先生\"," +
-            "\"companyPhone\":\"15995798888\"," +
-            "\"companyContact\":\"张三\"," +
-            "\"contactPhone\":\"15995798888\"" +
-            "}}";
-
 
     public static String getData(String url) throws IOException, EncoderException {
 
@@ -130,60 +122,61 @@ public class HttpUtil {
     /**
      * 参数map post请求
      */
-    //public static String getPostData(String url,Map<String,String>paramMap) throws IOException, EncoderException {
-    //    HttpPost httpPost = new HttpPost(url);
-    //    MultipartEntityBuilder builder=MultipartEntityBuilder.create();
-    //    for(String key: paramMap.keySet()){
-    //        builder.addTextBody(key,paramMap.get(key));
-    //    }
-    //    builder.setCharset(Charset.forName("UTF-8"));
-    //    httpPost.setEntity(builder.build());
-    //    System.out.println(httpPost.getURI());
-    //    CloseableHttpResponse response = httpClient.execute(httpPost);
-    //    HttpEntity entity = response.getEntity();
-    //    String body = EntityUtils.toString(entity);
-    //
-    //    return body;
-    //}
+    public static String getPostData(String url,Map<String,String>paramMap) throws IOException {
+
+        HttpPost httpPost = new HttpPost(url);
+        MultipartEntityBuilder builder=MultipartEntityBuilder.create();
+        for(String key: paramMap.keySet()){
+            builder.addTextBody(key,paramMap.get(key));
+        }
+        builder.setCharset(Charset.forName("UTF-8"));
+        httpPost.setEntity(builder.build());
+        System.out.println(httpPost.getURI());
+        CloseableHttpResponse response = httpClient.execute(httpPost);
+        HttpEntity entity = response.getEntity();
+        String body = EntityUtils.toString(entity);
+
+        return body;
+    }
 
     /**
      * 参数map post请求
      */
-//    public static String getPostData(String url,Map<String,String>paramMap,Map<String,String>headerMap) throws IOException, EncoderException {
-//
-//        HttpPost httpPost = new HttpPost(url);
-//        MultipartEntityBuilder builder=MultipartEntityBuilder.create();
-//        for(String key: paramMap.keySet()){
-//            builder.addTextBody(key,paramMap.get(key));
+    public static String getPostData(String url,Map<String,String>paramMap,Map<String,String>headerMap) throws IOException, EncoderException {
+
+        HttpPost httpPost = new HttpPost(url);
+        MultipartEntityBuilder builder=MultipartEntityBuilder.create();
+        for(String key: paramMap.keySet()){
+            builder.addTextBody(key,paramMap.get(key));
+        }
+        builder.setCharset(Charset.forName("UTF-8"));
+
+        httpPost.setEntity(builder.build());
+        if(headerMap!=null&&headerMap.size()>0){
+            for(String key: headerMap.keySet()){
+                httpPost.addHeader(key,headerMap.get(key));
+            }
+        }
+        CloseableHttpResponse response = httpClient.execute(httpPost);
+        List<Cookie> cookies = cookieStore.getCookies();
+
+        for (int i = 0; i < cookies.size(); i++) {
+            System.out.println(cookies.get(i).getName()+":"+cookies.get(i).getValue());
+        }
+        Header[]headers= response.getAllHeaders();
+        for(Header header:headers){
+            System.out.println(header.getName()+":"+header.getValue());
+        }
+//        if(response.getFirstHeader("Set-Cookie")!=null){
+//            String setCookie = response.getFirstHeader("Set-Cookie").getValue();
+//            JSESSIONID = setCookie.substring("JSESSIONID=".length(), setCookie.indexOf(";"));
+//            System.out.println("JSESSIONID:" + JSESSIONID);
 //        }
-//        builder.setCharset(Charset.forName("UTF-8"));
-//
-//        httpPost.setEntity(builder.build());
-//        if(headerMap!=null&&headerMap.size()>0){
-//            for(String key: headerMap.keySet()){
-//                httpPost.addHeader(key,headerMap.get(key));
-//            }
-//        }
-//        CloseableHttpResponse response = httpClient.execute(httpPost);
-//        List<Cookie> cookies = cookieStore.getCookies();
-//
-//        for (int i = 0; i < cookies.size(); i++) {
-//            System.out.println(cookies.get(i).getName()+":"+cookies.get(i).getValue());
-//        }
-//        Header []headers= response.getAllHeaders();
-//        for(Header header:headers){
-//            System.out.println(header.getName()+":"+header.getValue());
-//        }
-////        if(response.getFirstHeader("Set-Cookie")!=null){
-////            String setCookie = response.getFirstHeader("Set-Cookie").getValue();
-////            JSESSIONID = setCookie.substring("JSESSIONID=".length(), setCookie.indexOf(";"));
-////            System.out.println("JSESSIONID:" + JSESSIONID);
-////        }
-//        HttpEntity entity = response.getEntity();
-//        String body = EntityUtils.toString(entity);
-//
-//        return body;
-//    }
+        HttpEntity entity = response.getEntity();
+        String body = EntityUtils.toString(entity);
+
+        return body;
+    }
 
 
     /**
@@ -238,40 +231,31 @@ public class HttpUtil {
 
         // 获取输入流
         InputStream inputStream = getInputStream(url);
-
         byte[] date = new byte[1024];
         int len = 0;
         FileOutputStream fileOutputStream = null;
 
         try {
             fileOutputStream = new FileOutputStream(path);
-
             while ((len = inputStream.read(date)) != -1) {
                 fileOutputStream.write(date, 0, len);
-
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         } finally {
-
             try {
                 if (inputStream != null) {
                     inputStream.close();
-
                 }
-
                 if (fileOutputStream != null) {
                     fileOutputStream.close();
-
                 }
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-
         }
-
     }
 
     /**
@@ -292,14 +276,12 @@ public class HttpUtil {
             int responseCode = httpURLConnection.getResponseCode();
             if (responseCode == 200) {
                 inputStream = httpURLConnection.getInputStream();
-
             }
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
         return inputStream;
     }
 
@@ -338,6 +320,5 @@ public class HttpUtil {
         } catch (EncoderException e) {
             e.printStackTrace();
         }
-
     }
 }
