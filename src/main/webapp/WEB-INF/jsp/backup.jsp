@@ -94,5 +94,79 @@
         });
     }
 
+
+    //表格右键菜单
+    $(document).on("contextmenu",".department-box table td.center",function (event){
+        var ind = $(this).index();
+        var tdLeng = $("tr").eq(0).find("td").length;
+        if(ind != (tdLeng-1)){
+            currCol = $(this).index();
+            currRow = $(this).parent().index();
+            //相对td定位
+            $(".right_click_window").hide();
+            tableClass.offsetFix(this,"#table-menu");
+        }
+    })
+
+    // 表格右键菜单
+    // <div class="right_click_window" id="table-menu">
+    //     <ul class="right_click_window_box">
+    //     <li class="editTd">
+    //     <a href="javascript:;">编辑</a>
+    //     </li>
+    //     <li class="delTd">
+    //     <a href="javascript:;">删除</a>
+    //     </li>
+    //     <li>
+    //     <a href="javascript:;">下架</a>
+    //     </li>
+    //     </ul>
+    // </div>
+
+
+    // js 屏蔽浏览器右键菜单：
+    // <body oncontextmenu="doNothing()">
+    function doNothing(){
+        window.event.returnValue=false;
+        return false;
+    }
+
+
+    // 使用 Validform 进行表单元素验证（validform/v5.3.2/Validform.min.js）（dataType，nullmsg，errormsg）：
+    // <input type="text" name="validator" value="0.1" dataType="/^([1-9]\d*(\.\d*[1-9])?)|(0\.\d*[1-9])$|^(0\.d*[1-9])$/" nullmsg="不能为空" errormsg="请填写正确信息！(1.0 ~ 0.1)" placeholder="xxx">
+    // <input placeholder="" dataType="uniquecode" />
+
+    $("#submitForm").Validform({
+        btnSubmit:"#addAppBut",
+        tiptype: 4,
+        ajaxPost:true,
+        showAllError:true,
+        datatype:{
+            uniquecode:function(gets,obj,curform,regxp){
+                result = false;
+                if (null != gets && undefined != gets && ''!=gets) {
+
+                }
+                return result;
+            }
+        },
+        beforeSubmit:function(curform){
+            //在验证成功后，表单提交前执行的函数，curform参数是当前表单对象。
+            //这里明确return false的话表单将不会提交;
+            // return false;
+        },
+        beforeCheck:function(curform){
+            //在表单提交执行验证之前执行的函数，curform参数是当前表单对象。
+            //这里明确return false的话将不会继续执行验证操作;
+        },
+        callback:function(data){
+            if (data.state == 1) {
+
+            } else {
+
+            }
+        }
+    });
+
 </script>
 </html>
