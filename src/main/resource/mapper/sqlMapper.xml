@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="usermapper" >
+
+  <resultMap id="baseResultMap" type="hyman.entity.LayuiUser">
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="level" property="level" jdbcType="INTEGER" />
+  </resultMap>
+
+  <!-- map 中 list 接收时，接收 map 的 key -->
+
+  <!-- 两条数据，互相交换数据。即排序业务中的上移，下移 -->
+  <update id="selectByStatu" parameterType="java.lang.Integer" >
+      UPDATE
+          tbl_core_member c
+      JOIN
+          tbl_core_member cc
+      ON
+          (c.id = 8 AND cc.id = 11) OR (c.id = 11 AND cc.id = 8)
+      SET
+          c.sort = cc.sort , cc.sort = c.sort
+  </update>
+
+  <update id="selectByStatu" parameterType="java.lang.Integer" >
+      update tbl_core_member c
+       set c.sort=(
+          case
+              when id=8 then (
+                  select a.sort from (select cc.* from tbl_core_member cc) a	where a.id=11
+              )
+              when id=11 then (
+                  select a.sort from (select tmp.* from question tmp) a where a.id=8
+              )
+          end
+      )
+      where c.id=11 or c.id=8;
+  </update>
+
+  <!-- extends="BaseResultMap"  是指 ResultMap的继承：-->
+  <resultMap id="ResultMapWithBLOBs" type="com.cme.platform.pagestruct.domain.PlatConfig" extends="BaseResultMap" >
+    <result column="config_value" property="configValue" jdbcType="LONGVARCHAR" />
+  </resultMap>
+
+  <!--==================================分割线==========================================-->
+
+</mapper>
