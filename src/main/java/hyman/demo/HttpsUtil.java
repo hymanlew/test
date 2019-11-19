@@ -6,6 +6,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
@@ -13,17 +17,14 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.net.ssl.*;
+import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.security.KeyManagementException;
@@ -34,19 +35,29 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by WeiJinTechnology on 2017/2/21.
- */
-public class HttpUtil {
+// 参考地址：https://www.cnblogs.com/yaowen/p/9238651.html
+public class HttpsUtil {
 
     private static BasicCookieStore cookieStore = new BasicCookieStore();
     private static String JSESSIONID="DcT1hrPYmXQz33L453vCsNLLhbTgyZwTCl6wD7sJpySS6cxgr3jQ!1372965369";
     private static BasicClientCookie cookie = new BasicClientCookie("JSESSIONID", JSESSIONID);
     private static CloseableHttpClient httpClient = createHttpsClient();
 
-    //创建http client
-    public static CloseableHttpClient createHttpsClient() {
 
+    public static SSLContext getSSLContext() {
+
+        /**
+         * 创建 SSLContext，发起https请求：
+         * https是对链接加了安全证书SSL的，如果服务器中没有相关链接的SSL证书，它就不能够信任那个链接，也就不会访问到了。所以
+         * 我们第一步是自定义一个信任管理器。要实现自带的 X509TrustManager 接口就可以了。（或者直接 new 一个匿名内部类）。
+         *
+         * 注：
+         * 1，需要的包都是java自带的，所以不用引入额外的包。
+         * 2，当其实现的方法为空时，是默认为所有的链接都为安全的，也就是所有的链接都能够访问到。当然这样有一定的安全风险，可以
+         * 根据实际需要写入内容。
+         */
+
+        // 采用绕过验证的方式处理https请求
         X509TrustManager x509mgr = new X509TrustManager() {
             @Override
             public void checkClientTrusted(X509Certificate[] xcs, String string) {
@@ -60,21 +71,124 @@ public class HttpUtil {
             }
         };
 
+
         //因为java客户端要进行安全证书的认证，这里我们设置ALLOW_ALL_HOSTNAME_VERIFIER来跳过认证，否则将报错
-        SSLConnectionSocketFactory sslsf = null;
         try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[]{x509mgr}, null);
-            sslsf = new SSLConnectionSocketFactory(
-                    sslContext,
-                    SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            SSLContext sslContext = SSLContext.getInstance("SSL");
+            //初始化
+            //sslContext.init(null, new TrustManager[]{x509mgr}, null);
+            sslContext.init(null, new TrustManager[]{x509mgr}, new java.security.SecureRandom());
+            return sslContext;
+
         } catch (KeyManagementException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        cookieStore.addCookie(cookie);
-        return HttpClients.custom().setDefaultCookieStore(cookieStore).build();
+
+        return null;
+    }
+
+    public static CloseableHttpClient createHttpsClient(){
+
+        // 这是在有相关密钥时调用，就不需要配置 SSLContext 了。
+        //cookieStore.addCookie(cookie);
+        //CloseableHttpClient httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
+
+        // 设置协议http和https对应的处理socket链接工厂的对象
+        Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+                .register("http", PlainConnectionSocketFactory.INSTANCE)
+                .register("https", new SSLConnectionSocketFactory(getSSLContext()))
+                .build();
+        PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+        HttpClients.custom().setConnectionManager(connManager);
+
+        // 创建自定义的httpclient对象
+        //CloseableHttpClient client = HttpClients.createDefault();
+        CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connManager).build();
+
+        return  httpClient;
+    }
+
+    public static void useCertify(){
+        /**
+         *
+         https 的另一种访问方式（导入服务端的安全证书）：
+         1，下载需要访问的链接所需要的安全证书。https://kyfw.12306.cn/ 以这个网址为例。在浏览器上访问 https://kyfw.12306.cn/。
+         2，点击地址栏中的打了× 的锁查看证书。
+         3，点击查看证书，详情信息，点击选择复制到文件进行导出。我们把它导入到 java项目所使用的 jre的 lib文件下的 security文件夹中去。例如 D:\Program Files (x86)\Java\
+         jre8\lib\security。
+         选择导出文件格式为 DER 编码（默认的），下一步，导出路径为刚才的路径，并为文件命名。
+
+         4，打开cmd,进入到 java项目所使用的 jre的 lib文件下的 security目录。在命令行输入：
+         Keytool -import -alias 12306 -file 12306.cer -keystore cacerts
+
+         5，回车后会让输入口令，一般默认是changeit，输入时不显示，输入完直接按回车，会让确认是否信任该证书，输入y，就会提示导入成功。
+         6，导入成功后就能使用 http 请求请求 https 了。
+
+         注：有时候这一步还是会出错，可能是jre的版本不对，右键run as——run configurations，选择证书所在的 jre之后再运行。
+
+         证书的查看，确认是否已经导入：
+         keytool -list -keystore cacerts -storepass changeit | findstr 12306
+
+         删除证书的命令为：
+         keytool -delete -alias 12306 -keystore cacerts -storepass changeit
+         */
+    }
+
+    /*
+     * 处理https GET/POST请求
+     * 请求地址、请求方法、参数
+     * */
+    public static String httpsRequest(String requestUrl, String requestMethod, String outputStr){
+        StringBuffer buffer=null;
+
+        try{
+            // 创建 SSLContext，发起https请求：
+            SSLContext sslContext = getSSLContext();
+
+            //获取SSLSocketFactory对象
+            // 该方法已经过时。所以不推荐使用。
+            //SSLConnectionSocketFactory ssf = new SSLConnectionSocketFactory(
+            //        sslContext,
+            //        SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+
+            //获取SSLSocketFactory对象
+            SSLSocketFactory ssf = sslContext.getSocketFactory();
+
+            URL url=new URL(requestUrl);
+            HttpsURLConnection conn=(HttpsURLConnection)url.openConnection();
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.setUseCaches(false);
+            conn.setRequestMethod(requestMethod);
+
+            //设置当前实例使用的SSLSoctetFactory
+            conn.setSSLSocketFactory(ssf);
+            conn.connect();
+
+            //往服务器端写内容
+            if(null!=outputStr){
+                OutputStream os=conn.getOutputStream();
+                os.write(outputStr.getBytes("utf-8"));
+                os.close();
+            }
+
+            //读取服务器端返回的内容
+            InputStream is=conn.getInputStream();
+            InputStreamReader isr=new InputStreamReader(is,"utf-8");
+            BufferedReader br=new BufferedReader(isr);
+            buffer=new StringBuffer();
+
+            String line=null;
+            while((line=br.readLine())!=null){
+                buffer.append(line);
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return buffer.toString();
     }
 
     public static String getData(String url) throws IOException, EncoderException {

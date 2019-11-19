@@ -2,57 +2,61 @@ package hyman.demo;
 
 import com.sun.org.apache.xpath.internal.SourceTree;
 import hyman.entity.User;
+import org.apache.poi.ss.formula.functions.T;
 import sun.rmi.runtime.Log;
 
 import javax.jws.soap.SOAPBinding;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Stream流是数据渠道，用于操作数据源（集合、数组等）所生成的元素序列。即 Stream是依赖于某种数据源，数据源可以是数组、容器等，
- *        但不能是Map。但反过来从 Stream生成 Map是可以的。
+ * 但不能是Map。但反过来从 Stream生成 Map是可以的。
  * Stream 的优点：声明性，可复合，可并行。这三个特性使得stream操作更简洁，更灵活，更高效。
  * Stream 的操作有两个特点：可以多个操作链接起来运行，内部迭代。
- *
+ * <p>
  * 其组成元素是特定类型的对象，形成一个队列。 Java中的 Stream并不会存储元素，而是按需计算。
  * 数据源流的来源。可以是集合，数组，I/O channel， 产生器generator等。
  * 聚合操作类似SQL语句一样的操作，比如filter, map, reduce, find, match, sorted等。
- *
- *
+ * <p>
+ * <p>
  * Stream可分为并行流与串行流，它可以声明性地通过 parallel() 与 stream() 在并行流与顺序流之间进行切换。
  * 串行流就不必细说了，并行流主要是为了为了适应目前多核机器的时代，提高系统CPU、内存的利用率，并行流就是把一个内容分成多个数
  * 据块，并用不同的线程分别处理每个数据块的流。
- *
+ * <p>
  * java1.8 并行流使用的是 fork/join 框架。
- *
+ * <p>
  * 1、Stream不会自己存储数据。
  * 2、Stream不会改变原对象，他们会返回一个新的Stream。
  * 3、Stream操作是延迟的，他们会等到需要的结果时才执行。
  * 4、使用并行流并不一定会提高效率，因为 jvm 对数据进行切片和切换线程也是需要时间的。
- *
- *
+ * <p>
+ * <p>
  * 和以前的 Collection操作不同，Stream操作还有两个基础的特征：
  * - Pipelining：中间操作都会返回流对象本身。这样多个操作可以串联成一个管道，如同流式风格（fluent style）。 这样做可以对操作
- *   进行优化，比如延迟执行(laziness) 和 短路( short-circuiting)。
- *
+ * 进行优化，比如延迟执行(laziness) 和 短路( short-circuiting)。
+ * <p>
  * - 内部迭代：以前对集合遍历都是通过 Iterator或者 For-Each的方式, 显式的在集合外部进行迭代，这叫做外部迭代。 Stream提供了内
- *   部迭代的方式，通过访问者模式(Visitor) 实现。
+ * 部迭代的方式，通过访问者模式(Visitor) 实现。
  */
 public class SteamDemo {
 
     private static List<User> list = new ArrayList<>();
 
-    public static void base(){
-        list.add(new User("a",18,0.0));
-        list.add(new User("b",25,0.0));
-        list.add(new User("c",38,0.0));
-        list.add(new User("d",38,0.0));
-        list.add(new User("e",25,0.0));
+    public static void base() {
+        list.add(new User("a", 18, 0.0));
+        list.add(new User("b", 25, 0.0));
+        list.add(new User("c", 38, 0.0));
+        list.add(new User("d", 38, 0.0));
+        list.add(new User("e", 25, 0.0));
     }
 
-    public static void streamTest(){
+    public static void streamTest() {
 
         /**
          * 创建Stream，就是将一个数据源 （如：集合、数组）转化为一个流。
@@ -61,7 +65,7 @@ public class SteamDemo {
          * 2、通过Arrays中的静态方法 stream() 获取数据流。
          * 3、通过Stream类中的静态方法 of()获取数据流。
          */
-        List<Integer> list = Arrays.asList(1,2,3,4,5,6);
+        List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6);
         // 串行流
         Stream<Integer> stream = list.stream();
         // 并行流
@@ -74,14 +78,14 @@ public class SteamDemo {
         Integer[] arr = new Integer[3];
         Stream<Integer> stream3 = Arrays.stream(arr);
 
-        Stream<String> stream4 = Stream.of("abc","cba");
+        Stream<String> stream4 = Stream.of("abc", "cba");
     }
 
     /**
      * 中间操作，即对数据源进行一系列的操作处理。多个中间操作可以连接起来像一条流水线，除非流水线上触发器终止操作，否则中间
      * 操作不会执行任何的处理，而是在终止操作时一次性全部处理，成为惰性求值。
      */
-    public static void test1(){
+    public static void test1() {
 
         /**
          * 筛选和切片：
@@ -92,7 +96,7 @@ public class SteamDemo {
          */
         base();
         Stream<User> stream = list.stream();
-        stream.filter((u)->u.getAge()<30)
+        stream.filter((u) -> u.getAge() < 30)
                 .distinct()
                 .limit(2)
                 .skip(1)
@@ -125,7 +129,7 @@ public class SteamDemo {
 
     }
 
-    public static void test2(){
+    public static void test2() {
 
         /**
          * 映射：
@@ -155,42 +159,42 @@ public class SteamDemo {
                 .forEach(System.out::println);
     }
 
-    public static Stream<String> getNames(List<User> list){
+    public static Stream<String> getNames(List<User> list) {
 
         List<String> list1 = new ArrayList<String>();
-        for(User u : list){
+        for (User u : list) {
             list1.add(u.getName());
         }
         return list1.stream();
     }
 
-    public static Stream<Character> characterStream(String s){
+    public static Stream<Character> characterStream(String s) {
 
         List<Character> result = new ArrayList<>();
-        for (char c : s.toCharArray()){
+        for (char c : s.toCharArray()) {
             result.add(c);
         }
         return result.stream();
     }
 
-    public static void test3(){
+    public static void test3() {
 
         /**
          * 排序
          * 1、sorted()，产生一个新流，其中按自然顺序排序。
          * 2、sorted(Comparator)，产生一个新流，其中按比较器顺序排序。
          */
-        List<String> list1 = Arrays.asList("aa","bb","cc","dd");
+        List<String> list1 = Arrays.asList("aa", "bb", "cc", "dd");
 
         // 默认 unecode 顺序排列
         list1.stream().sorted()
-                        .forEach(System.out::println);
+                .forEach(System.out::println);
 
         // 倒序排列
-        list1.stream().sorted((x,y) -> {
-            if(x.equals(y)){
+        list1.stream().sorted((x, y) -> {
+            if (x.equals(y)) {
                 return 1;
-            }else {
+            } else {
                 return -1;
             }
         }).forEach(System.out::println);
@@ -201,7 +205,7 @@ public class SteamDemo {
         list.stream().sorted(Comparator.comparing(User::getName)).forEach(System.out::println);
     }
 
-    public static void test4(){
+    public static void test4() {
 
         /**
          * 终止操作是执行中间操作链，并产生结果（一个新流）,数据源本身并不受影响，其结果可以是任何不是流的值。
@@ -220,7 +224,7 @@ public class SteamDemo {
         base();
         boolean b = list.stream()
                 .noneMatch((e) -> e.getName().equals("zhao"));
-        System.out.println("noneMatch，是否所有的 name 都匹配不到 zhao: "+b);
+        System.out.println("noneMatch，是否所有的 name 都匹配不到 zhao: " + b);
 
         /**
          * Optional<T>类（java.util.Optional）是一个容器类，代表一个值存在或不存在。它是专门用于解决抛出 NPE 的异常情况的。
@@ -232,41 +236,41 @@ public class SteamDemo {
          * T orElse(T other)，会在值存在时返回值，否则返回一个默认值。
          */
         Optional<User> optionalUser = list.parallelStream()
-                .filter((x) -> x.getAge()==18)
+                .filter((x) -> x.getAge() == 18)
                 .findAny();
-        System.out.println("查看 optional 容器的状态信息: "+optionalUser);
+        System.out.println("查看 optional 容器的状态信息: " + optionalUser);
 
         // 判断是否有数据
-        if(optionalUser.isPresent()){
-            System.out.println("获取年龄是 18的任意一个用户: "+optionalUser.get());
-            optionalUser.ifPresent(u -> System.out.println("获取该用户的年龄: "+u.getAge()));
-        }else {
-            System.out.println("没有年龄是 18的用户！ "+optionalUser.orElse(new User()));
-            list.stream().filter((x) -> x.getAge()==25).forEach(System.out::println);
+        if (optionalUser.isPresent()) {
+            System.out.println("获取年龄是 18的任意一个用户: " + optionalUser.get());
+            optionalUser.ifPresent(u -> System.out.println("获取该用户的年龄: " + u.getAge()));
+        } else {
+            System.out.println("没有年龄是 18的用户！ " + optionalUser.orElse(new User()));
+            list.stream().filter((x) -> x.getAge() == 25).forEach(System.out::println);
             list.stream().forEach(System.out::println);
         }
 
         optionalUser = list.parallelStream()
-                .filter((x) -> x.getAge()==20)
+                .filter((x) -> x.getAge() == 20)
                 .findAny();
         // 判断是否有数据
-        if(optionalUser.isPresent()){
-            System.out.println("获取年龄是 20的任意一个用户: "+optionalUser.get());
-        }else {
+        if (optionalUser.isPresent()) {
+            System.out.println("获取年龄是 20的任意一个用户: " + optionalUser.get());
+        } else {
             System.out.println("没有年龄是 20的用户！");
-            list.stream().filter((x) -> x.getAge()==25).forEach(System.out::println);
+            list.stream().filter((x) -> x.getAge() == 25).forEach(System.out::println);
 
             System.out.println("查看所有的用户！");
             list.stream().forEach(System.out::println);
         }
 
         list.stream()
-                .filter((u) -> u.getAge()==38)
+                .filter((u) -> u.getAge() == 38)
                 .findAny()
-                .ifPresent(u -> System.out.println("获取该用户的名字: "+u.getName()));
+                .ifPresent(u -> System.out.println("获取该用户的名字: " + u.getName()));
     }
 
-    public static void test5(){
+    public static void test5() {
 
         /**
          * 归约 reduce()，可以实现从一组元素中生成一个值，即可以将流中的值反复结合起来，得到一个值。
@@ -277,7 +281,7 @@ public class SteamDemo {
         Stream<String> stream = Stream.of("I", "love", "you", "too");
         //Optional<String> longest = stream.reduce((s1, s2) -> s1.length()>=s2.length() ? s1 : s2);
         //System.out.println(longest.get());
-        Optional<String> longest = stream.max((s1,s2) -> s1.length()-s2.length());
+        Optional<String> longest = stream.max((s1, s2) -> s1.length() - s2.length());
         System.out.println(longest.get());
 
 
@@ -304,7 +308,7 @@ public class SteamDemo {
                 .forEach(System.out::println);
     }
 
-    public static void test6(){
+    public static void test6() {
 
         base();
         //转HashSet
@@ -326,8 +330,8 @@ public class SteamDemo {
 
         //最大值
         Optional<User> u = list.stream()
-                .collect(Collectors.maxBy((e1,e2)
-                        -> Integer.compare(e1.getAge(),e2.getAge() )));
+                .collect(Collectors.maxBy((e1, e2)
+                        -> Integer.compare(e1.getAge(), e2.getAge())));
         System.out.println(u);
 
         //平均年龄
@@ -336,27 +340,200 @@ public class SteamDemo {
         System.out.println(collect.getAverage());
 
         //分组
-        Map<Integer, List<User>> l= list.stream()
+        Map<Integer, List<User>> l = list.stream()
                 .collect(Collectors.groupingBy(User::getAge));
         System.out.println(l);
 
         //多级分组
-        Map<Integer,Map<String,List<User>> > ls= list.stream()
+        Map<Integer, Map<String, List<User>>> ls = list.stream()
                 .collect(Collectors.groupingBy(
-                        User::getAge,Collectors.groupingBy(User::getName)));
+                        User::getAge, Collectors.groupingBy(User::getName)));
         System.out.println(ls);
 
         //分区
-        Map<Boolean,List<User>> map= list.stream()
+        Map<Boolean, List<User>> map = list.stream()
                 .collect(Collectors.partitioningBy((x)
-                        -> x.getAge()>18));
+                        -> x.getAge() > 18));
         System.out.println(map);
 
         //连接字符串
         String str = list.stream().map(User::getName)
-                .collect(Collectors.joining(",","-","-"));
+                .collect(Collectors.joining(",", "-", "-"));
         System.out.println(str);
 
+    }
+
+    public static void method1() {
+
+        String Ids = "A,B,C,D,E";
+        String Ids2 = "D,E,F,G,H";
+        List<String> list = Arrays.asList(Ids.split(","));
+        List<String> list1 = Arrays.asList(Ids2.split(","));
+
+        // 使用stream流去比较两个数组是否相等
+        // 先将集合转成stream流进行排序然后转成字符串进行比较
+        boolean checkDiff = list.stream().sorted().collect(Collectors.joining())
+                .equals(list1.stream().sorted().collect(Collectors.joining()));
+
+
+        // 匹配交集
+        List<String> modulins = list.stream().filter(num -> list1.contains(num)).collect(Collectors.toList());
+    }
+
+    public static void method2() {
+        /**
+         * Java 8 的新特性：
+         * Lambda 表达式，函数式接口，接口的默认方法实现，Stream，Optional，新的日期时间 API，等等。
+         *
+         * 函数式接口(Functional Interface)就是一个有且仅有一个抽象方法，但是可以有多个非抽象方法的接口。函数式接口可以被隐
+         * 式转换为 lambda 表达式。
+         * 每一个lambda表达式都对应一个类型，通常是接口类型。每一个该类型的lambda表达式都会被匹配到这个抽象方法。因为默认方法
+         * 不算抽象方法，所以你也可以给你的函数式接口添加默认方法。
+         *
+         * Java 8允许在接口中加入具体方法。接口中的具体方法有两种，default方法和static方法，它们内部的实现就是调用的抽象方法。
+         *
+         * Function接口：
+         * 它是函数式接口，即它是函数式的操作。所有标注了 @FunctionalInterface 注解的接口都是函数式接口，具体来说，所有标注
+         * 了该注解的接口都将能用在lambda表达式上。
+         * Function 中没有具体的操作，具体的操作需要我们去为它指定，因此apply具体返回的结果取决于传入的lambda表达式。
+         */
+
+        Function<Integer, Integer> test1 = i -> i + 1;
+        Function<Integer, Integer> test2 = i -> i * i;
+
+        /** print:6*/
+        System.out.println(calculate(test1, 5));
+        /** print:25*/
+        System.out.println(calculate(test2, 5));
+
+        /**
+         * 我们通过传入不同的Function，实现了在同一个方法中实现不同的操作。在实际开发中这样可以大大减少很多重复的代码，比如我
+         * 在实际项目中有个新增用户的功能，但是用户分为VIP和普通用户，且有两种不同的新增逻辑。那么此时我们就可以先写两种不同的
+         * 逻辑。除此之外，这样还让逻辑与数据分离开来，我们可以实现逻辑的复用。
+         * 当然实际开发中的逻辑可能很复杂，比如两个方法F1, F2都需要两个个逻辑AB，但是F1需要A -> B，F2方法需要B -> A。这样的我
+         * 们用刚才的方法也可以实现，源码如下：
+         */
+        Function<Integer, Integer> A = i -> i + 1;
+        Function<Integer, Integer> B = i -> i * i;
+
+        /** F1:36 */
+        System.out.println("F1:" + B.apply(A.apply(5)));
+        /** F2:26 */
+        System.out.println("F2:" + A.apply(B.apply(5)));
+
+        /**
+         * compose接收一个Function参数，返回时先用传入的逻辑执行apply，然后使用当前Function的apply。
+         * andThen跟compose正相反，先执行当前的逻辑，再执行传入的逻辑。
+         * compose等价于B.apply(A.apply(5))，而andThen等价于A.apply(B.apply(5))。
+         */
+        A = i -> i + 1;
+        B = i -> i * i;
+
+        /** F1:36 */
+        System.out.println("F1:" + B.apply(A.apply(5)));
+        /** F1:36 */
+        System.out.println("F1:" + B.compose(A).apply(5));
+        /** F2:26 */
+        System.out.println("F2:" + A.apply(B.apply(5)));
+        /** F2:26 */
+        System.out.println("F2:" + B.andThen(A).apply(5));
+
+
+        // 我们可以看到上述两个方法的返回值都是一个Function，这样我们就可以使用建造者模式的操作来使用。
+        B.compose(A).compose(A).andThen(A).apply(5);
+
+        // Function.identity() 返回一个输出跟输入一样的Lambda表达式对象，等价于形如t -> t形式的Lambda表达式。
+        Arrays.asList("a", "b", "c")
+                .stream()
+                .map(Function.identity()) // <- This,
+                .map(str -> str)          // <- is the same as this.
+                .collect(Collectors.toMap(
+                        Function.identity(), // <-- And this,
+                        str -> str));        // <-- is the same as this.
+
+        // 在上面的代码中 str ->str 和 Function.identity() 是没什么区别的，因为它们都是t -> t。以下代码可以正常运行。
+        String liststr = "1,2,3,4,5,6";
+        int[] arrayOK = Arrays.stream(liststr.split(",")).mapToInt(i -> Integer.parseInt(i)).toArray();
+
+        // 但是我们有时候不能使用Function.identity。例如以下代码在运行的时候就会错误，因为 mapToInt 要求的参数是 ToIntFunction
+        // 类型，但是 ToIntFunction 类型和 Function 是没有关系的。
+        //int[] arrayProblem = numlist.stream().mapToInt(Function.identity()).toArray();
+
+    }
+
+    public static Integer calculate(Function<Integer, Integer> test, Integer number) {
+        return test.apply(number);
+    }
+
+    public static void method3() {
+
+        /**
+         * Predicate<T> 接口是一个函数式接口，它也是一个断言式接口（底层 test 方法），传入一个参数T（lambda 式的条件表达式），
+         * 返回boolean类型的结果。跟Function一样，Predicate的具体实现也是根据传入的lambda表达式来决定的。
+         *
+         * 该接口包含多种默认方法来将Predicate组合成其他复杂的逻辑：
+         * 与，	&&，     and 方法。
+         * 或，	||，     or 方法。
+         * 非，	！，     negate 方法。
+         * 相等，equals，isEqual 方法。
+         *
+         * 该接口用于测试对象是 true 或 false（底层使用 test 方法），也可以做为 filter 的过滤实现：
+         */
+
+        int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+        List<Integer> list = new ArrayList<>();
+        for (int i : numbers) {
+            list.add(i);
+        }
+        Predicate<Integer> p1 = i -> i > 5;
+        Predicate<Integer> p2 = i -> i < 20;
+        Predicate<Integer> p3 = i -> i % 2 == 0;
+        List test = list.stream().filter(p1.and(p2).and(p3)).collect(Collectors.toList());
+
+        /** print:[6, 8, 10, 12, 14]*/
+        System.out.println(test.toString());
+
+        /** print:[7, 9, 11, 13, 15]*/
+        test = list.stream().filter(p1.and(p2).and(p3.negate())).collect(Collectors.toList());
+
+        /** print:[7] */
+        test = list.stream().filter(p1.and(p2).and(p3.negate()).and(Predicate.isEqual(7))).collect(Collectors.toList());
+
+
+        list = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+
+        // Predicate<Integer> predicate = n -> true
+        // n 是一个参数传递到 Predicate 接口的 test 方法
+        // n 如果存在则 test 方法返回 true
+        // 传递参数 n
+        System.out.println("输出所有数据:");
+        eval(list, n -> true);
+
+        // Predicate<Integer> predicate1 = n -> n%2 == 0
+        // n 是一个参数传递到 Predicate 接口的 test 方法
+        // 如果 n%2 为 0 test 方法返回 true
+        System.out.println("输出所有偶数:");
+        eval(list, n -> n % 2 == 0);
+
+        // Predicate<Integer> predicate2 = n -> n > 3
+        // n 是一个参数传递到 Predicate 接口的 test 方法
+        // 如果 n 大于 3 test 方法返回 true
+        System.out.println("输出大于 3 的所有数字:");
+        eval(list, n -> n > 3);
+    }
+
+    public static void eval(List<Integer> list, Predicate<Integer> predicate) {
+        for (Integer n : list) {
+            if (predicate.test(n)) {
+                System.out.println(n + " ");
+            }
+        }
+
+        //eval 函数可以写为如下格式：
+        list.stream().filter(predicate).forEach(System.out::println);
+
+        //或者直接可以不用定义 eval 函数，使用:
+        list.stream().filter(n -> n > 3).forEach(System.out::println);
     }
 
     public static void main(String[] args) {
