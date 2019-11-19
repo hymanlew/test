@@ -135,7 +135,7 @@ public class SteamDemo {
          * 映射：
          * 1、map，接收Lambda，将元素转换成其他形式或提取信息。接收一个函数作为参数，并对流中每一个元素应用函数，将其映射成一个新的元素。
          * 2、mapToDouble/mapToInt/mapToLong，接收一个函数作为参数，该函数会被应用到每个元素上，产生一个新的DoubleStream/IntStream/LongStream。
-         * 3、flatMap，接收一个函数作为参数，将流中的每个值都换成一个流，然后把流连接成一个流。
+         * 3、flatMap，接收一个函数作为参数，将流中的每个值都换成一个流，然后把流连接成一个流。即扁平化为一个流。
          */
         base();
 
