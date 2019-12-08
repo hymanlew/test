@@ -43,6 +43,21 @@ import java.util.stream.Stream;
  * <p>
  * - 内部迭代：以前对集合遍历都是通过 Iterator或者 For-Each的方式, 显式的在集合外部进行迭代，这叫做外部迭代。 Stream提供了内
  * 部迭代的方式，通过访问者模式(Visitor) 实现。
+ *
+ *
+ * Stream 的优势劣势：
+ * 对于简单操作，比如最简单的遍历，Stream串行API性能明显差于显示迭代，但并行的Stream API能够发挥多核特性。
+ * 对于复杂操作，Stream串行API性能可以和手动实现的效果匹敌，在并行执行时Stream API效果远超手动实现。
+ *
+ * 所以，如果出于性能考虑：
+ * 1. 对于简单操作推荐使用外部迭代手动实现。
+ * 2. 对于复杂操作（操作 POJO 对象，与数据量大小没有直接的关系），推荐使用Stream API。
+ * 3. 在多核情况下，推荐使用并行Stream API来发挥多核优势。
+ * 4. 单核情况下不建议使用并行Stream API。
+ *
+ * 如果出于代码简洁性考虑，使用Stream API能够写出更短的代码。即使是从性能方面说，尽可能的使用Stream API。另外一个优势，那就是
+ * 只要Java Stream类库做了升级优化，代码不用做任何修改就能享受到升级带来的好处。
+ *
  */
 public class SteamDemo {
 
