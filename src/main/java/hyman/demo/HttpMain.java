@@ -97,9 +97,9 @@ public class HttpMain {
      3）其他格式， 包括application/json, application/xml等。这些格式的字符串数据，必须使用 @RequestBody来处理。
 
      PUT方式提交时， 根据request header Content-Type的值来判断:
-     请求头必须为 application/x-www-form-urlencoded，multipart/form-data, 不能处理；其他格式， 必须.
+     请求头必须为 application/x-www-form-urlencoded，且不能处理 multipart/form-data 或其他格式， 必须固定是前者。
 
-     conn.addRequestProperty/conn.setRequestProperty（add是追加， set是覆盖设置）
+     conn.addRequestProperty / conn.setRequestProperty（add是追加， set是覆盖设置）
 
 
      类型转换：
@@ -118,12 +118,14 @@ public class HttpMain {
      PUT：
      header 头（Content-Type=application/x-www-form-urlencoded; charset=utf-8，Content-Length=整个参数的 byte 长度）。
      参数内容（=格式，并只对 value 进行 utf-8 编码），写入到请求体中。
+     PUT请求时，请求体中的实体如果存在于服务器，则该封装实体作为原始服务器上的修改版本。如果不存在，则原始服务器可用此 URI 创
+     建新的资源。即该请求主要用于更新资源，但要注意并不是上传（upload），上传必须用 post。
 
      DELETE：
      header 头（Content-Type=application/x-www-form-urlencoded; charset=utf-8），也可以不指定，因为它是默认的。无参数内容。
 
      UPLOAD：
-     请求方式（POST ），
+     请求方式（POST 且必须是这个），
      设置（conn.setUseCaches(false)，conn.setInstanceFollowRedirects(true)）
      header 头（Connection=Keep-Alive，Charset=UTF-8，Content-Type=multipart/form-data;boundary=*****，表示分界线），
      在发送数据时，首先要先写入内容类型（"Content-Disposition: form-data;name=xx;filename=xx" + \r\n），
