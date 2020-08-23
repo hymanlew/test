@@ -218,7 +218,7 @@
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.9.2</version>
+            <version>1.9.4</version>
         </dependency>
         <!-- 使用说明：https://blog.csdn.net/sun8112133/article/details/79968573 -->
         <dependency>
