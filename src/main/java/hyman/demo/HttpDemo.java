@@ -65,6 +65,9 @@ public class HttpDemo {
 
     public static void testConnection() throws IOException {
 
+        OutputStream outputStream = null;
+        BufferedOutputStream bufferedOutputStream = null;
+        PrintWriter writer = null;
         BufferedReader reader = null;
         HttpURLConnection connection = null;
         try {
@@ -133,25 +136,47 @@ public class HttpDemo {
             out.flush();
             out.close();
 
+
             //字符类型的打印输出流
-            PrintWriter pw = new PrintWriter(connection.getOutputStream());
+            outputStream = connection.getOutputStream();
+            bufferedOutputStream = new BufferedOutputStream(outputStream);
+            writer = new PrintWriter(bufferedOutputStream);
+
             //发送请求参数即数据
-            pw.write(content);
-            pw.flush();
+            writer.write(content);
+            writer.flush();
 
             if(200 == connection.getResponseCode()){
                 reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder result = new StringBuilder();
                 String line;
-                while ((line=reader.readLine())!=null){
+
+                while ((line = reader.readLine()) != null){
                     System.out.println(line);
+                    result.append(line + "\n");
                 }
             }
         }catch (Exception e){
-            LOGGER.info("http get request exception error",e);
-//           将异常抛出的目的是：因为这种GET请求一般实在业务逻辑中使用，如果出现HTTP通信异常，将异常抛出，便于使用该方法的地方将异常捕获进行处理。
-             throw new RuntimeException("HTTP通信异常！");
+
+            LOGGER.error("http get request exception error",e);
+
+           //将异常抛出的目的是：因为这种GET请求一般实在业务逻辑中使用，如果出现HTTP通信异常，将异常抛出，便于使用该方法的地方将异常捕获进行处理。
+            throw new RuntimeException("HTTP通信异常！");
+
         }finally{
             try{
+                if(writer != null) {
+                    writer.close();
+                }
+                if(bufferedOutputStream != null) {
+                    bufferedOutputStream.close();
+                }
+                if(outputStream != null) {
+                    outputStream.close();
+                }
+                if(connection != null) {
+                    connection.disconnect();
+                }
                 if(reader!=null){
                     reader.close();
                 }
@@ -160,7 +185,6 @@ public class HttpDemo {
                 throw new RuntimeException("HTTP关闭IO出现异常！");
             }
         }
-
     }
 
 

@@ -4,6 +4,8 @@ Reserved.
  */
 package hyman.demo;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -15,7 +17,6 @@ import java.util.*;
  * @Date 2015年1月21日
  */
 public class DateUtil {
-
 
 	/**
 	 * 把字符串转为固定时间格式的字符串(xx:xx)
@@ -255,6 +256,54 @@ public class DateUtil {
 	public static String setNo(){
 		String no = new SimpleDateFormat("yyMMddHHmm").format(new Date());
 		return no;
+	}
+
+
+	/**
+	 * ISO时间格式转换
+	 */
+	public static String ISO2Java(String time) throws ParseException {
+		if (StringUtils.isEmpty(time)) {
+			return time;
+		}
+
+		// 移除毫秒
+		time = time.replaceAll("\\.[\\d]*$", "");
+
+		// 如果日期格式已转移，直接返回
+		if (time.matches("\\d{4}-\\d{1,2}-\\d{1,2} \\d{1,2}:\\d{1,2}:\\d{1,2}")) {
+			return time;
+		}
+
+		// 转换数据格式
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		Date date = formatter.parse(time);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return sdf.format(date);
+	}
+
+	/**
+	 * 转换日期为long
+	 */
+	public static Long getMilliseconds(String time) throws ParseException {
+		if (StringUtils.isEmpty(time)) {
+			return System.nanoTime();
+		}
+
+		// 如果日期格式已转移，直接返回
+		Date date;
+		if (time.matches("\\d{4}-\\d{1,2}-\\d{1,2} \\d{1,2}:\\d{1,2}:\\d{1,2}.\\d{1,3}")) {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+			date = formatter.parse(time);
+		} else if(time.matches("\\d{4}-\\d{1,2}-\\d{1,2} \\d{1,2}:\\d{1,2}:\\d{1,2}")) {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			date = formatter.parse(time);
+		} else {
+			// 转换数据格式
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+			date = formatter.parse(time);
+		}
+		return date.getTime();
 	}
 
 	public static void main(String [] args ){
