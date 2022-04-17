@@ -47,6 +47,33 @@
     </bean>
 
 
+    <!--
+    默认情况下，Spring容器仅允许最多定义一个PropertyPlaceholderConfigurer 或 <content:property-placeholder>，如果有多个属性文件，
+    先扫描到的被保留，其余的会被Spring忽略。
+    其实 content:property-placeholder 内部实现就是实例化了一个 PropertyPlaceholderConfigurer。
+    解决办法：
+    在所有 PropertyPlaceholderConfigurer 或 <content:property-placeholder>配置中加上<property name="ignoreUnresolvablePlaceholders"
+    value="true"/>配置（告诉Spring容器扫描到这个属性文件后，可以继续往下扫描一个属性文件），就可以扫描到所有的属性文件。
+    -->
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:config/db.properties</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="properties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <value>classpath*:config/sys.properties</value>
+            </list>
+        </property>
+        <qualifier value="main" />
+    </bean>
+    <bean id="propertyUtils" class="hyman.utils2.PropertyUtils">
+        <property name="properties" ref="properties" />
+    </bean>
+
     <!-- Multipart：多部件的， Resolver：分析器-->
     <!-- 200*1024*1024 即 200M，resolveLazily属性启用是为了推迟文件解析，以便捕获文件大小异常 -->
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
@@ -54,4 +81,9 @@
         <property name="defaultEncoding" value="UTF-8" />
         <property name="resolveLazily" value="true" />
     </bean>
+
+
+    <!-- 扩展 servletContext ，以静态变量保存Spring ApplicationContext, 可在任何代码任何地方任何时候中取出ApplicaitonContext -->
+    <bean id="SpringContextHolder" class="hyman.utils.SpringContextHolder"></bean>
+
 </beans>

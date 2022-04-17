@@ -1,6 +1,5 @@
 package hyman.utils2;
 
-//import com.jagregory.shiro.freemarker.ShiroTags;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
