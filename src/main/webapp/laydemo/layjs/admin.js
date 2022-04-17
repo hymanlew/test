@@ -276,9 +276,9 @@ layui.define(mods, function(exports) {
   });
 
   /*
-   * exports('demo', function(){});
+   * exports('utils2', function(){});
    * exports是一个函数，它接受两个参数，第一个参数为模块名，第二个参数为模块接口，当你声明了上述的一个模块后，你就可以在外部
-   * 使用了，demo 就会注册到 layui 对象下，即可通过 layui.demo() 去执行该模块的接口。
+   * 使用了，utils2 就会注册到 layui 对象下，即可通过 layui.utils2() 去执行该模块的接口。
    *
    * 输出admin接口，注意这里是模块输出的核心，模块名必须与主入口 use时的模块名一致
    */

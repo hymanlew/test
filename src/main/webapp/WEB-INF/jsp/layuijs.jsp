@@ -154,13 +154,13 @@ body{overflow-y: scroll;}
             /**
              * 方法渲染：是指用 js 方法实现表格生成的形式。自动渲染：是指在 table html 中声明表头设置，HTML配置，自动渲染。
              * 下述 lay-data 里面的内容即为基础参数项，切记：值要用单引号
-             * <table lay-data="{height:300, url:'/api/data'}" lay-filter="demo"> …… </table>
+             * <table lay-data="{height:300, url:'/api/data'}" lay-filter="utils2"> …… </table>
              *
              * cols，设置表头。值是一个二维数组。方法渲染方式必填
              * field，表头字段名，并且名字必须与接收的实体类字段名称相同。
              * sort，是否排序
              * minWidth，width
-             * templet，值是模板元素的选择器，指向自定义的 <script id="demo">。
+             * templet，值是模板元素的选择器，指向自定义的 <script id="utils2">。
              *
              * request，response，如果没有自定义的请求和响应参数，可不加该参数，但是接收时默认还是有 response 格式的。
              * request，并且如果也没有自定义参数，分页参数传递时，默认会发送 Integer page（页数）, Integer limit（每页数量） 两个参数，所以后台一定要接收。
